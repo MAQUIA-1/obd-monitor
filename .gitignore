@@ -1,0 +1,17 @@
+node_modules/
+dist/
+
+.env
+.env.*
+!.env.example
+
+.DS_Store
+Thumbs.db
+
+.uv-cache/
+.vite/
+*.log
+
+*.csv
+*.md
+!README.md
