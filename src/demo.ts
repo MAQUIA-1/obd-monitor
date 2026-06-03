@@ -11,6 +11,7 @@ export function nextDemoValues(): PollResult {
   const speed = Math.max(0, Math.sin(t / 4) * 52 + 58 + Math.sin(t * 1.7) * 5);
   const rpm = speed < 2 ? 0 : 900 + Math.sin(t / 3) * 260 + speed * 18;
   const regenPhase = Math.sin(t / 2.5);
+  const gear = speed < 2 ? "P" : t % 24 > 18 ? "M" : "D";
 
   return {
     speedKph: speed,
@@ -23,7 +24,7 @@ export function nextDemoValues(): PollResult {
     coolantTempC: 65 + Math.min(t / 10, 1) * 8,
     controlVoltageV: 14.78 + Math.sin(t / 9) * 0.08,
     outsideTempC: 22,
-    gear: null,
+    gear,
     updatedAt: Date.now(),
   };
 }

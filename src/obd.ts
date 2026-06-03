@@ -1,4 +1,4 @@
-import { parseBms2101, parseStandardResponse, parseSteering7d4_2101 } from "./pids";
+import { parseBms2101, parseGear7e1_21a0, parseStandardResponse, parseSteering7d4_2101 } from "./pids";
 import type { PollResult } from "./types";
 
 const SERVICE_UUID = "0000fff0-0000-1000-8000-00805f9b34fb";
@@ -61,6 +61,7 @@ export class ObdClient {
     return {
       ...(await this.pollMotion()),
       ...(await this.pollSteering()),
+      ...(await this.pollGear()),
       updatedAt: Date.now(),
     };
   }
@@ -86,6 +87,14 @@ export class ObdClient {
     await this.setHeader("7D4");
     return {
       steeringAngleDeg: parseSteering7d4_2101(await this.command("2101", 900)),
+      updatedAt: Date.now(),
+    };
+  }
+
+  async pollGear(): Promise<PollResult> {
+    await this.setHeader("7E1");
+    return {
+      gear: parseGear7e1_21a0(await this.command("21A0", 900)),
       updatedAt: Date.now(),
     };
   }
@@ -117,17 +126,17 @@ export class ObdClient {
   }
 
   async pollControlVoltage(): Promise<PollResult> {
-    await this.setHeader(null);
+    await this.setHeader("7E0");
     return {
-      controlVoltageV: parseStandardResponse(await this.command("0142"), "42"),
+      controlVoltageV: parseStandardResponse(await this.command("0142"), "42", "7E8"),
       updatedAt: Date.now(),
     };
   }
 
   async pollOutsideTemp(): Promise<PollResult> {
-    await this.setHeader(null);
+    await this.setHeader("7E0");
     return {
-      outsideTempC: parseStandardResponse(await this.command("0146"), "46"),
+      outsideTempC: parseStandardResponse(await this.command("0146"), "46", "7E8"),
       updatedAt: Date.now(),
     };
   }

@@ -15,3 +15,5 @@ Thumbs.db
 *.csv
 *.md
 !README.md
+!BLUETOOTH_CAPTURE.md
+2026-06-03 20-00-04.brc

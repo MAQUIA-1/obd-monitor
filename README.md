@@ -23,3 +23,7 @@ npm run dev
 ```sh
 npm run build
 ```
+
+## Notes
+
+- Direct laptop Bluetooth capture procedure: [BLUETOOTH_CAPTURE.md](BLUETOOTH_CAPTURE.md)

@@ -27,7 +27,7 @@ app.innerHTML = `
       </div>
       <div class="gauge gear">
         <div class="label">기어</div>
-        <div class="value-wrap"><div class="value gear-value" data-value="gear">--</div><div class="unit">탐색중</div></div>
+        <div class="value-wrap"><div class="value gear-value" data-value="gear">--</div></div>
       </div>
       <div class="gauge">
         <div class="label">RPM</div>
@@ -68,7 +68,7 @@ app.innerHTML = `
       <div class="panel">
         <div class="row"><span>냉각수온</span><strong data-value="coolantTempC">--</strong><em>°C</em></div>
         <div class="row"><span>HV 전압</span><strong data-value="batteryVoltageV">--</strong><em>V</em></div>
-        <div class="row"><span>12V 전압</span><strong data-value="controlVoltageV">--</strong><em>V</em></div>
+        <div class="row row-with-note"><span>12V 전압</span><strong data-value="controlVoltageV">--</strong><em>V</em><small>85-105°C · 260-290V · 13.5-14.8V</small></div>
       </div>
       <div class="panel">
         <div class="row"><span>외기온도</span><strong data-value="outsideTempC">--</strong><em>°C</em></div>
@@ -223,17 +223,17 @@ function setState(next: ConnectionState) {
 function render() {
   setText("speedKph", formatNumber(values.speedKph, 0));
   setText("rpm", formatNumber(values.rpm, 0));
-  setText("batteryCurrentA", formatSigned(values.batteryCurrentA, 0));
+  setText("batteryCurrentA", formatSigned(values.batteryCurrentA, 1));
   setText("gear", values.gear ?? "--");
   const steering = formatSteeringParts(values.steeringAngleDeg);
   setText("steeringAngleDeg", steering.value);
   setSteeringArrows(steering.direction);
   setSteeringMeter(values.steeringAngleDeg);
-  setText("fuelPct", formatNumber(values.fuelPct, 0));
-  setText("batterySocPct", formatNumber(values.batterySocPct, 0));
-  setText("batteryVoltageV", formatNumber(values.batteryVoltageV, 0));
+  setText("fuelPct", formatNumber(values.fuelPct, 1));
+  setText("batterySocPct", formatNumber(values.batterySocPct, 1));
+  setText("batteryVoltageV", formatNumber(values.batteryVoltageV, 1));
   setText("coolantTempC", formatNumber(values.coolantTempC, 0));
-  setText("controlVoltageV", formatNumber(values.controlVoltageV, 0));
+  setText("controlVoltageV", formatNumber(values.controlVoltageV, 3));
   setText("outsideTempC", formatNumber(values.outsideTempC, 0));
   setMeter("fuelPct", values.fuelPct);
   setMeter("batterySocPct", values.batterySocPct);
@@ -318,12 +318,12 @@ function formatSteeringParts(value: number | null): { value: string; direction: 
   }
 
   const abs = Math.abs(value);
-  if (abs < 0.5) {
+  if (abs === 0) {
     return { value: "0", direction: null };
   }
 
   return {
-    value: abs.toFixed(0),
+    value: abs.toFixed(1),
     direction: value < 0 ? "left" : "right",
   };
 }

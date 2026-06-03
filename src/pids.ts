@@ -17,8 +17,13 @@ export function emptyValues(): DashboardValues {
   };
 }
 
-export function parseStandardResponse(response: string, pid: string): number | null {
-  const bytes = extractSingleFrameBytes(response);
+type CanFrame = {
+  header: string | null;
+  bytes: number[];
+};
+
+export function parseStandardResponse(response: string, pid: string, responseHeader?: string): number | null {
+  const bytes = extractSingleFrameBytes(response, responseHeader);
   if (bytes.length < 3) return null;
 
   const mode = bytes[1];
@@ -68,6 +73,28 @@ export function parseSteering7d4_2101(response: string) {
   return signed16(payload[5], payload[6]) / 10;
 }
 
+export function parseGear7e1_21a0(response: string): string | null {
+  const payload = extractIsoTpPayload(response);
+  if (payload.length < 23 || payload[0] !== 0x61 || payload[1] !== 0xa0) {
+    return null;
+  }
+
+  switch (payload[22]) {
+    case 0x0c:
+      return "M";
+    case 0x0b:
+      return "P";
+    case 0x0a:
+      return "R";
+    case 0x09:
+      return "N";
+    case 0x08:
+      return "D";
+    default:
+      return null;
+  }
+}
+
 export function extractIsoTpPayload(response: string): number[] {
   const frames = extractCanPayloadFrames(response);
   const payload: number[] = [];
@@ -93,27 +120,39 @@ export function extractIsoTpPayload(response: string): number[] {
   return expectedLength == null ? payload : payload.slice(0, expectedLength);
 }
 
-function extractSingleFrameBytes(response: string): number[] {
-  const frames = extractCanPayloadFrames(response);
-  if (!frames[0]) return [];
-  const first = frames[0];
-  const pci = first[0];
-  if ((pci >> 4) === 0x0) {
-    return first.slice(0, (pci & 0x0f) + 1);
+function extractSingleFrameBytes(response: string, responseHeader?: string): number[] {
+  const frames = extractCanFrames(response)
+    .filter((frame) => !responseHeader || frame.header === responseHeader.toUpperCase())
+    .map((frame) => frame.bytes);
+
+  for (const first of frames) {
+    if (first.length === 0) continue;
+
+    const pci = first[0];
+    if ((pci >> 4) === 0x0) {
+      return first.slice(0, (pci & 0x0f) + 1);
+    }
+    return first;
   }
-  return first;
+
+  return [];
 }
 
 function extractCanPayloadFrames(response: string): number[][] {
+  return extractCanFrames(response).map((frame) => frame.bytes);
+}
+
+function extractCanFrames(response: string): CanFrame[] {
   return response
     .split(/[\r\n>]+/)
     .map((line) => line.replace(/\s+/g, "").toUpperCase())
     .filter((line) => /^[0-9A-F]{8,}$/.test(line))
     .map((line) => {
-      const withoutHeader = line.length >= 6 ? line.slice(3) : line;
-      return hexToBytes(withoutHeader);
+      const header = line.length >= 6 ? line.slice(0, 3) : null;
+      const payload = header ? line.slice(3) : line;
+      return { header, bytes: hexToBytes(payload) };
     })
-    .filter((bytes) => bytes.length > 0);
+    .filter((frame) => frame.bytes.length > 0);
 }
 
 function hexToBytes(hex: string): number[] {
