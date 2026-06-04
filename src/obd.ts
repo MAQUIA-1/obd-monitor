@@ -59,18 +59,32 @@ export class ObdClient {
 
   async pollFast(): Promise<PollResult> {
     return {
-      ...(await this.pollMotion()),
-      ...(await this.pollSteering()),
+      ...(await this.pollSpeed()),
       ...(await this.pollGear()),
       updatedAt: Date.now(),
     };
   }
 
-  async pollMotion(): Promise<PollResult> {
+  async pollMedium(): Promise<PollResult> {
+    return {
+      ...(await this.pollRpm()),
+      ...(await this.pollSteering()),
+      updatedAt: Date.now(),
+    };
+  }
+
+  async pollSpeed(): Promise<PollResult> {
+    await this.setHeader(null);
+    return {
+      speedKph: parseStandardResponse(await this.command("010D"), "0D"),
+      updatedAt: Date.now(),
+    };
+  }
+
+  async pollRpm(): Promise<PollResult> {
     await this.setHeader(null);
     return {
       rpm: parseStandardResponse(await this.command("010C"), "0C"),
-      speedKph: parseStandardResponse(await this.command("010D"), "0D"),
       updatedAt: Date.now(),
     };
   }

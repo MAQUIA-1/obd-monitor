@@ -11,13 +11,14 @@ export function nextDemoValues(): PollResult {
   const speed = Math.max(0, Math.sin(t / 4) * 52 + 58 + Math.sin(t * 1.7) * 5);
   const rpm = speed < 2 ? 0 : 900 + Math.sin(t / 3) * 260 + speed * 18;
   const regenPhase = Math.sin(t / 2.5);
-  const gear = speed < 2 ? "P" : t % 24 > 18 ? "M" : "D";
+  const gearPhase = t % 32;
+  const gear = gearPhase < 4 ? "P" : gearPhase < 18 ? "D" : gearPhase < 24 ? "M" : gearPhase < 28 ? "R" : "D";
 
   return {
     speedKph: speed,
     rpm,
     batteryCurrentA: regenPhase > 0.35 ? -18 - regenPhase * 12 : 12 + Math.sin(t * 2) * 8,
-    steeringAngleDeg: Math.sin(t / 1.7) * 28,
+    steeringAngleDeg: Math.sin(t / 1.7) * 360,
     batterySocPct: 52.5 + Math.sin(t / 30) * 0.4,
     batteryVoltageV: 273 + Math.sin(t / 8) * 2,
     fuelPct: 70.6,
