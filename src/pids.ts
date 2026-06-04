@@ -58,7 +58,7 @@ export function parseBms2101(response: string) {
   }
 
   return {
-    batteryCurrentA: signed16(payload[5], payload[6]) / 10,
+    batteryCurrentA: signed16(payload[12], payload[13]) / 10,
     batterySocPct: payload[6] / 2,
     batteryVoltageV: unsigned16(payload[14], payload[15]) / 10,
   };
