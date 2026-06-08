@@ -80,7 +80,7 @@ app.innerHTML = `
         <div class="panel steering-metrics">
           <div class="row"><span>냉각수온</span><strong data-value="coolantTempC">--</strong><em>°C</em></div>
           <div class="row"><span>HV 전압</span><strong data-value="batteryVoltageV">--</strong><em>V</em></div>
-          <div class="row row-with-note"><span>12V 전압</span><strong data-value="controlVoltageV">--</strong><em>V</em><small>85-105°C · 260-290V · 13.5-14.8V</small></div>
+          <div class="row"><span>12V 전압</span><strong data-value="controlVoltageV">--</strong><em>V</em></div>
           <div class="metric-bars">
             <div class="row row-with-bar">
               <span>연료</span><strong data-value="fuelPct">--</strong><em>%</em>
@@ -259,6 +259,9 @@ function render() {
   setText("coolantTempC", formatNumber(values.coolantTempC, 0));
   setText("controlVoltageV", formatNumber(values.controlVoltageV, 3));
   setText("outsideTempC", formatNumber(values.outsideTempC, 0));
+  setUpperWarning("coolantTempC", values.coolantTempC, 105);
+  setRangeWarning("batteryVoltageV", values.batteryVoltageV, 240, 305);
+  setRangeWarning("controlVoltageV", values.controlVoltageV, 13.2, 14.9);
   setMeter("fuelPct", values.fuelPct);
   setMeter("batterySocPct", values.batterySocPct);
 
@@ -296,6 +299,20 @@ function subtitleForState() {
 function setText(key: keyof DashboardValues, text: string) {
   for (const el of document.querySelectorAll(`[data-value="${key}"]`)) {
     el.textContent = text;
+  }
+}
+
+function setRangeWarning(key: keyof DashboardValues, value: number | null, min: number, max: number) {
+  const isWarning = value != null && !Number.isNaN(value) && (value < min || value > max);
+  for (const el of document.querySelectorAll<HTMLElement>(`[data-value="${key}"]`)) {
+    el.classList.toggle("range-warning", isWarning);
+  }
+}
+
+function setUpperWarning(key: keyof DashboardValues, value: number | null, max: number) {
+  const isWarning = value != null && !Number.isNaN(value) && value > max;
+  for (const el of document.querySelectorAll<HTMLElement>(`[data-value="${key}"]`)) {
+    el.classList.toggle("range-warning", isWarning);
   }
 }
 

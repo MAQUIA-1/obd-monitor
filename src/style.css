@@ -224,6 +224,7 @@ h1 {
 
 .metric-bars {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   margin-top: 3px;
   padding-top: 6px;
@@ -231,7 +232,7 @@ h1 {
 }
 
 .metric-bars .row {
-  flex: 1 1 0;
+  flex: 0 0 auto;
   min-inline-size: 0;
   min-block-size: 28px;
   border-top: 0;
@@ -390,7 +391,7 @@ h1 {
 }
 
 .row {
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   flex-wrap: nowrap;
   min-block-size: 26px;
@@ -420,7 +421,12 @@ h1 {
   flex: 0 0 auto;
   color: var(--text);
   font-size: 18px;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
+}
+
+.row strong.range-warning {
+  color: var(--current-drive);
 }
 
 .row em {
@@ -429,6 +435,7 @@ h1 {
   font-style: normal;
   font-size: 13px;
   font-weight: 800;
+  line-height: 1;
 }
 
 .row small {
